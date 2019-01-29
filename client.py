@@ -19,7 +19,7 @@ except:
 		if g[0] == "Callsign":
 			call = g[1].strip()
 		if g[0] == "Server":
-			srvaddr = g[1].strip()			
+			srvaddr = g[1].strip()
 
 host = (srvaddr,port)
 
@@ -37,7 +37,7 @@ rscore = 0
 def listen(id):
 	global tanks,bf,rf
 	while (True):
-		inp,addr = s.recvfrom(100)
+		inp,addr = s.recvfrom(1024000)
 		g = inp.split(" ")
 		if g[0] == "-1":
 			mapstring = g[1]
@@ -64,7 +64,7 @@ def listen(id):
 			else:
 				tanks[call1] = Tank(call1,True)
 		if len(tanks)>0:
-			if g[0] == "-1":	
+			if g[0] == "-1":
 				ndict = {}
 				for i in tanks.keys():
 					if i!=g[1]:
@@ -118,7 +118,7 @@ while True:
 				hx = 1
 			if event.key == K_a:
 				hx = -1
-			s.sendto("1 "+str(hx)+" "+str(hy),host)	
+			s.sendto("1 "+str(hx)+" "+str(hy),host)
 		if event.type == KEYUP:
 			if event.key == K_w:
 				hy = 0
@@ -130,7 +130,7 @@ while True:
 				hx = 0
 			s.sendto("1 "+str(hx)+" "+str(hy),host)
 		if event.type == MOUSEBUTTONDOWN:
-			s.sendto("3",host)	
+			s.sendto("3",host)
 	mx,my = pygame.mouse.get_pos()
 	trt = int(-atan2(my-340,mx-430)/pi*180.-90.)
 	s.sendto("2 "+str(trt),host)

@@ -56,7 +56,7 @@ def update(id):
 				for i in tanks:
 					ss.sendto("2 "+tanks[i].call+" "+str(tanks[i].x)+" "+str(tanks[i].y),j)
 				ss.sendto("5 "+str(rf[0])+" "+str(rf[1])+" "+str(bf[0])+" "+str(bf[1]),j)
-		
+
 
 rspawns = []
 bspawns = []
@@ -108,7 +108,7 @@ for x in range(mapi.get_width()):
 while True:
 	inp,addr = ss.recvfrom(100)
 	g = inp.split(" ")
-	if g[0] == "-1":	
+	if g[0] == "-1":
 		if tanks[addr].team:
 			rc-=1
 		else:
@@ -122,8 +122,7 @@ while True:
 		tanks = ndict
 	if g[0] == "0":
 		call = g[1]
-		for i in mapobjs:
-			ss.sendto("-1 "+i.toString(),addr)
+		ss.sendto("-1 "+"\n".join([i.toString() for i in mapobjs]),addr)
 		if bc>rc:
 			tanks[addr] = Tank(call,True)
 			rc+=1
@@ -139,7 +138,7 @@ while True:
 			for j in tanks.keys():
 				ss.sendto("0 "+tanks[i].call+" "+str(tanks[i].team),j)
 		ss.sendto("6 "+str(rscore)+" "+str(bscore),addr)
-			
+
 
 	if g[0] == "1":
 		hx = int(g[1])
@@ -158,4 +157,3 @@ while True:
 			bullets.append(Bullet(tanks[addr].x-15*sin(tanks[addr].trt*pi/180.),tanks[addr].y-15*cos(tanks[addr].trt*pi/180.),180+tanks[addr].trt,tanks[addr]))
 			for i in tanks.keys():
 				ss.sendto("4 "+tanks[addr].call,i)
-		

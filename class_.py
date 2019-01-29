@@ -16,6 +16,7 @@ class Tank(object):
 		self.team = team
 		self.flag = None
 		self.timer = 0
+		self.exp_rad = 0
 	def render(self,screen,call,scrollx,scrolly):
 		if self.hx!=0 or self.hy!=0:
 			rt = -atan2(self.hy,self.hx)/pi*180.-90.
@@ -49,6 +50,13 @@ class Tank(object):
 					screen.blit(b,(430-b.get_width()/2,340-b.get_height()/2))
 				pygame.draw.rect(screen,(255,0,0),(430-15,340-25,30,2))
 				pygame.draw.rect(screen,(0,255,0),(430-15,340-25,self.hp/3,2))
+		elif self.timer > 285:
+			rad = (-abs(self.timer - 285 - 7) + 15) * 5
+			exp = pygame.transform.scale(pygame.image.load("exp.png").convert_alpha(), (rad, rad))
+			if self.call == call:
+				screen.blit(exp, (430-exp.get_width()/2,340-exp.get_height()/2))
+			else:
+				screen.blit(exp, (self.x+430-exp.get_width()/2-scrollx,self.y+340-exp.get_height()/2-scrolly))
 	def run(self,mapobjs,rf,bf,spawns = False):
 		self.ltp+=1
 		if self.hp>0:
@@ -70,7 +78,7 @@ class Tank(object):
 					rf[1] = self.y-10
 				self.flag = True
 		else:
-			if spawns:
+			if spawns and self.timer < 100:
 				if (self.x,self.y) not in spawns:
 					po = random.choice(spawns)
 					self.x = po[0]
@@ -95,6 +103,7 @@ class Bullet(object):
 		self.rt = rt
 		self.alive = True
 		self.master = master
+		self.timer = 15
 	def run(self,tanks,mapobjs):
 		if self.alive:
 			self.x+=sin(self.rt*pi/180.)*5
@@ -102,7 +111,7 @@ class Bullet(object):
 			for i in tanks.keys():
 				if self.master.call!=tanks[i].call and tanks[i].hp>0:
 					if sqrt((tanks[i].y-self.y)**2+(tanks[i].x-self.x)**2) < 15:
-						tanks[i].hp-=20	
+						tanks[i].hp-=20
 						self.alive = False
 			for i in mapobjs:
 				if i.type == "Wall" or (i.type == "Shield" and self.master.team != i.team):
@@ -111,6 +120,11 @@ class Bullet(object):
 	def render(self,screen,scrollx,scrolly):
 		if self.alive:
 			pygame.draw.circle(screen,(0,0,0),(int(self.x)-scrollx+430,int(self.y)-scrolly+340),2)
+		elif self.timer > 0:
+			rad = (-abs(self.timer - 7) + 15) * 2
+			exp = pygame.transform.scale(pygame.image.load("exp.png").convert_alpha(), (rad, rad))
+			screen.blit(exp, (int(self.x)-scrollx+430-exp.get_width()/2,int(self.y)-scrolly+340-exp.get_height()/2))
+			self.timer -= 1
 
 class Wall(object):
 	def __init__(self,x,y):
@@ -133,7 +147,7 @@ class Post(object):
 	def toString(self):
 		return "Post:"+str(self.x)+":"+str(self.y)+":"+str(self.team)
 	def grab(self,rf,bf,rscore,bscore):
-		if self.team == False:		
+		if self.team == False:
 			rf[0] = self.x
 			rf[1] = self.y
 			bscore+=1
@@ -159,7 +173,7 @@ class Post(object):
 				if i.type == "Post" and i.team == False:
 					i.grab(rf,bf,rscore,bscore)
 					return False
-					
+
 class Ground(object):
 	def __init__(self,x,y):
 		self.x = x
@@ -218,10 +232,9 @@ class Teleporter(object):
 							tanks[i].hx = 0
 							tanks[i].hy = 0
 							tanks[i].ltp = 0
-								
+
 	def render(self,screen,scrollx,scrolly):
 		if self.x-scrollx+430 > -50 and self.x-scrollx+430 < 860+50:
 			if self.y-scrolly+340 > -50 and self.y-scrolly+340 < 680+50:
 				pygame.draw.rect(screen,self.chan,Rect(self.x-scrollx+430,self.y-scrolly+340,20,20))
 				screen.blit(pygame.image.load("teleporter.png").convert_alpha(),(self.x-scrollx+430,self.y-scrolly+340))
-				
